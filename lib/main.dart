@@ -1,122 +1,191 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import 'controllers/session_controller.dart';
+import 'controllers/product_controller.dart';
+import 'controllers/cart_controller.dart';
+import 'controllers/orders_controller.dart';
+import 'controllers/checkout_controller.dart';
+import 'controllers/wishlist_controller.dart';
+import 'controllers/theme_controller.dart';
+import 'controllers/banner_controller.dart'; // ✅ Added
+
+// ---------------- AUTH VIEWS ----------------
+import 'views/auth/login_view.dart';
+import 'views/auth/signup_view.dart' hide LoginView;
+import 'views/auth/forgot_password_screen.dart';
+
+// ---------------- USER VIEWS ----------------
+import 'views/user/user_root_view.dart';
+import 'views/user/user_home_view.dart';
+import 'views/user/product_details_view.dart';
+import 'views/user/cart_view.dart';
+import 'views/user/checkout_view.dart';
+import 'views/user/user_orders_view.dart';
+import 'views/user/wishlist_view.dart';
+
+// ---------------- ADMIN VIEWS ----------------
+import 'views/admin/admin_dashboard_view.dart';
+import 'views/admin/admin_orders_view.dart';
+import 'views/admin/admin_products_view.dart';
+
+// ---------------- MIDDLEWARE ----------------
+import 'middlewares/admin_guard.dart';
 
 void main() {
+  // ================= GLOBAL CONTROLLERS =================
+  Get.put(SessionController(), permanent: true);
+  Get.put(ProductController(), permanent: true);
+  Get.put(CartController(), permanent: true);
+  Get.put(OrdersController(), permanent: true);
+  Get.put(CheckoutController(), permanent: true);
+  Get.put(WishlistController(), permanent: true);
+  Get.put(ThemeController(), permanent: true); // 🌙 Dark mode
+  Get.put(BannerController(), permanent: true); // ✅ BannerController added
+
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
+    final theme = Get.find<ThemeController>();
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+    return Obx(() => GetMaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Offline Ecommerce',
+          initialRoute: "/login",
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
+          // ================= THEME MODE =================
+          themeMode: theme.isDark.value ? ThemeMode.dark : ThemeMode.light,
 
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
+          // ================= LIGHT THEME =================
+          theme: ThemeData(
+            brightness: Brightness.light,
+            scaffoldBackgroundColor: const Color(0xFFF6F7FB),
+            primaryColor: const Color(0xFF5B2EFF),
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Colors.white,
+              foregroundColor: Color(0xFF1F2937),
+              elevation: 0,
+              titleTextStyle: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF1F2937),
+              ),
+            ),
+            cardTheme: CardThemeData(
+              color: Colors.white,
+              elevation: 3,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+            elevatedButtonTheme: ElevatedButtonThemeData(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF5B2EFF),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+            ),
+            inputDecorationTheme: InputDecorationTheme(
+              filled: true,
+              fillColor: Colors.white,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide.none,
+              ),
+            ),
+          ),
 
-  final String title;
+          // ================= DARK THEME =================
+          darkTheme: ThemeData(
+            brightness: Brightness.dark,
+            scaffoldBackgroundColor: const Color(0xFF0F172A),
+            primaryColor: const Color(0xFF6366F1),
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Color(0xFF020617),
+              foregroundColor: Colors.white,
+              elevation: 0,
+            ),
+            cardTheme: CardThemeData(
+              color: const Color(0xFF020617),
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+            dialogBackgroundColor: const Color(0xFF020617),
+            elevatedButtonTheme: ElevatedButtonThemeData(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF6366F1),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+            ),
+            inputDecorationTheme: InputDecorationTheme(
+              filled: true,
+              fillColor: const Color(0xFF020617),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(14),
+                borderSide: BorderSide.none,
+              ),
+              hintStyle: const TextStyle(color: Colors.white54),
+            ),
+            iconTheme: const IconThemeData(color: Colors.white70),
+            textTheme: const TextTheme(
+              titleLarge: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
+              bodyMedium: TextStyle(
+                color: Colors.white70,
+              ),
+              bodySmall: TextStyle(
+                color: Colors.white54,
+              ),
+            ),
+          ),
 
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
+          // ================= ROUTES =================
+          getPages: [
+            // AUTH
+            GetPage(name: "/login", page: () => LoginView()),
+            GetPage(name: "/signup", page: () => SignupView()),
+            GetPage(name: "/forgot-password", page: () => ForgotPasswordScreen()),
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+            // USER
+            GetPage(name: "/user-root", page: () => UserRootView()),
+            GetPage(name: "/user-home", page: () => UserHomeView()),
+            GetPage(name: "/product", page: () => ProductDetailsView()),
+            GetPage(name: "/cart", page: () => CartView()),
+            GetPage(name: "/checkout", page: () => CheckoutView()),
+            GetPage(name: "/user-orders", page: () => UserOrdersView()),
+            GetPage(name: "/wishlist", page: () => WishlistView()),
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: .center,
-          children: [
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+            // ADMIN
+            GetPage(
+              name: "/admin-dashboard",
+              page: () => AdminDashboardView(),
+              middlewares: [AdminGuard()],
+            ),
+            GetPage(
+              name: "/admin-products",
+              page: () => AdminProductsView(),
+              middlewares: [AdminGuard()],
+            ),
+            GetPage(
+              name: "/admin-orders",
+              page: () => AdminOrdersView(),
+              middlewares: [AdminGuard()],
             ),
           ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
-    );
+        ));
   }
 }
